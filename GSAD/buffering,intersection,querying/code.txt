@@ -1,0 +1,90 @@
+import arcpy
+
+#buffer analysis
+##inputting shapefile
+x = r"D:\M.Sc.Computer Science GA\data\A\LABEXAM_SECTION_A\Data_03\Roads.shp"
+##setting output file
+y = r"C:\Users\Aiswarya\Documents\ArcGIS\Projects\Lab_practice_GSAD\output.shp"
+##cheching crs
+print(arcpy.Describe(x).spatialReference.Name)
+GCS_WGS_1984
+print(arcpy.Describe(y).spatialReference.Name)
+WGS_1984_UTM_Zone_43N
+##spatial transformation
+arcpy.env.geographicTransformations = "GCS_WGS_1984 to WGS_1984_UTM_Zone_43N"
+##buffer operation
+bd = 100
+arcpy.Buffer_analysis(x,y,bd)
+
+#Intersection
+##inputting shapefile
+z = r"D:\M.Sc.Computer Science GA\data\A\LABEXAM_SECTION_A\Data_03\Assets.shp"
+##checking crs
+print(arcpy.Describe(z).spatialReference.Name)
+WGS_1984_UTM_Zone_43N
+i = r"C:\Users\Aiswarya\Documents\ArcGIS\Projects\Lab_practice_GSAD\output_2.shp"
+##intersection operation
+arcpy.Intersect_analysis([y,z],i,"ALL")
+
+ #Attribute query
+##input files
+input = r"D:\M.Sc.Computer Science GA\data\B\LABEXAM_SECTION_B\Data_01\Cropdetails.csv"
+district = r"D:\M.Sc.Computer Science GA\data\B\LABEXAM_SECTION_B\Data_01\district.shp"
+##to obtain field list
+fieldlist = arcpy.ListFields(input)
+for f in fieldlist:
+    print(f.name)
+ID
+District_Name
+Paddy
+Pepper
+Cardamom
+Banana
+Cashew
+Tapioca
+Coconut
+Tea
+Coffee
+Rubber
+Total_Area
+Dis_Code
+
+##list the attributes using Search Cursor
+fieldrows = arcpy.da.SearchCursor(input,["ID","District_Name"])
+for f in fieldrows:
+    print(f)
+(13, 'Kollam')
+(12, 'Pathanamthitta')
+(10, 'Alapuzha')
+(11, 'Kottayam')
+(8, 'Idukki')
+(9, 'Ernakulam')
+(7, 'Thrissur')
+(6, 'Palakkad')
+(5, 'Malappuram')
+(4, 'Kozhikode')
+(3, 'Wayanad')
+(2, 'Kannur')
+(1, 'Kasaragod')
+
+##single querying
+fieldrows = arcpy.da.SearchCursor(input,["District_Name"],"Cardamom < 100")
+for f in fieldrows:
+    print(f)
+('Alapuzha',)
+('Ernakulam',)
+('Thrissur',)
+('Malappuram',)
+
+##multiple querying
+fieldrows = arcpy.da.SearchCursor(input,["District_Name"],"Tea > 5000 AND Coffee > 5000")
+for f in fieldrows:
+    print(f)
+('Alapuzha',)
+('Idukki',)
+('Wayanad',)
+
+#join a csv and shapefile
+syntax : arcpy.management.AddJoin(in_layer_or_view, in_field, join_table, join_field, {join_type})
+arcpy.management.AddJoin(district,'Name',input,'District_Name','KEEP_COMMON')
+
